@@ -1,0 +1,57 @@
+[
+  {
+    "name": "Rahul Sharma",
+    "id": "P001",
+    "age": 28,
+    "gender": "Male",
+    "city": "Bhopal",
+    "height": 175,
+    "weight": 70,
+    "bmi": 22.9,
+    "verdict": "Normal"
+  },
+  {
+    "name": "Anjali Verma",
+    "id": "P002",
+    "age": 32,
+    "gender": "Female",
+    "city": "Indore",
+    "height": 160,
+    "weight": 50,
+    "bmi": 19.5,
+    "verdict": "Normal"
+  },
+  {
+    "name": "Rohit Patel",
+    "id": "P003",
+    "age": 40,
+    "gender": "Male",
+    "city": "Ahmedabad",
+    "height": 168,
+    "weight": 80,
+    "bmi": 28.3,
+    "verdict": "Overweight"
+  },
+  {
+    "name": "Sneha Iyer",
+    "id": "P004",
+    "age": 25,
+    "gender": "Female",
+    "city": "Chennai",
+    "height": 158,
+    "weight": 45,
+    "bmi": 18.0,
+    "verdict": "Underweight"
+  },
+  {
+    "name": "Amit Singh",
+    "id": "P005",
+    "age": 35,
+    "gender": "Male",
+    "city": "Delhi",
+    "height": 172,
+    "weight": 95,
+    "bmi": 32.1,
+    "verdict": "Obese"
+  }
+]
