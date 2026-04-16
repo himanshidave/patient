@@ -1,11 +1,52 @@
 from fastapi import FastAPI, Path, HTTPException, Query
+from pydantic import BaseModel, Field ,computed_field
+from fastapi.responses import JSONResponse
+from typing import Annotated, Literal
 import json
 
 app = FastAPI()
 
+class Patient(BaseModel):
+
+    id:Annotated[str, Field(..., description="ID of patients")]
+    name:str
+    age:int
+    city:str
+    gender:Annotated[Literal["male","female","Other"],Field(...,description="Gender of patient")]
+    height:float
+    weight:float
+
+    @computed_field
+    @property
+    def bmi(self)-> float:
+        bmi=(self.weight/(self.height**2))
+        return bmi
+    
+
+    @computed_field
+    @property
+    def verdict(self)->str:
+        if self.bmi < 18.5:
+            return "underweight"
+        
+        elif self.bmi <25:
+            return "normal"
+        
+        elif self.bmi <30:
+            return "normal"
+        
+        else:
+            return "Obese"
+
+
 def data_load():
     with open("patients.json", "r") as f:
         return json.load(f)
+    
+
+def save_data(data):
+    with open("patients.json","w") as f:
+        json.dump(data,f)
 
 @app.get("/")
 def home():
@@ -21,7 +62,7 @@ def view():
 
 @app.get("/patient/{patient_id}")
 def view_patient(
-    patient_id: str = Path(..., description="Patient id in DB", example="P002")
+    patient_id: str = Path(..., description="Patient id in DB", examples="P002")
 ):
     data = data_load()
 
@@ -64,3 +105,23 @@ def sort_patients(
     )
 
     return sorted_data
+
+@app.post("/create")
+def create_pateint(patient:Patient):
+
+
+    #Load data
+    data=data_load
+
+    #check if patient already exist
+    if patient.id in data:
+        raise HTTPException(status_code=400,detail="Patient already exists")
+    
+
+    #add new patient to DB
+    data[patient.id]=patient.model_dump(exclude=["id"])#convert pydantic object into dict
+
+    #save to json file
+    save_data(data)
+
+    return JSONResponse(status_code=201, content={"message":"patient created successfully"})
