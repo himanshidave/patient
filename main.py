@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Path, HTTPException, Query
 from pydantic import BaseModel, Field ,computed_field
 from fastapi.responses import JSONResponse
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Optional
 import json
 
 app = FastAPI()
@@ -37,6 +37,18 @@ class Patient(BaseModel):
         
         else:
             return "Obese"
+
+
+
+class PatientUpdate(BaseModel):
+    name:str
+    age:int
+    city:str
+    gender:Annotated[Literal["male","female","Other"],Field(...,description="Gender of patient")]
+    height:float
+    weight:float
+
+
 
 
 def data_load():
@@ -125,3 +137,50 @@ def create_pateint(patient:Patient):
     save_data(data)
 
     return JSONResponse(status_code=201, content={"message":"patient created successfully"})
+
+@app.put("/edit/{Patient.id}")
+def update_patient(patient_id:str, patient_update:PatientUpdate):
+
+    data=data_load
+
+    if patient_id not in data:
+        raise HTTPException(status_code=404,detail="not found")
+    
+
+    existing_patient_info = data[patient_id]
+
+    update_patient=patient_update.model_dump(exclude_unset=True)
+
+    for key ,value in update_patient.items():
+        existing_patient_info[key]=value
+
+    #existing_patient_info ->pydantic.object -> updated bmi+verdict->pydantic object->dict
+    existing_patient_info['id'] = patient_id
+    patient_pydandic_obj = Patient(**existing_patient_info)
+    #-> pydantic object -> dict
+    existing_patient_info = patient_pydandic_obj.model_dump(exclude='id')
+
+    # add this dict to data
+    data[patient_id] = existing_patient_info
+
+
+    save_data(data)
+
+    return JSONResponse(status_code=200, content={'message':'patient updated'})
+
+@app.delete('/delete/{patient_id}')
+def delete_patient(patient_id: str):
+
+    # load data
+    data = data_load()
+
+    if patient_id not in data:
+        raise HTTPException(status_code=404, detail='Patient not found')
+    
+    del data[patient_id]
+
+    save_data(data)
+
+    return JSONResponse(status_code=200, content={'message':'patient deleted'})
+
+
